@@ -21,9 +21,6 @@ backend/.env
 .DS_Store
 Thumbs.db
 
-# Env
-.env*
-
 # Turborepo
 /.turbo/
 
