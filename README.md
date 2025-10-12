@@ -1,9 +1,11 @@
+IMPORTANTE: debe tener instalado "node"
 npm install       para las dependencias
 npx turbo run dev         para correr desde la raiz el front y back juntos
 falta agregar o editar el .env utilizando el .env.example cambiandolo a .env simplemente
 
 CHAT-GPT dice:
 # Proyecto Prueba Técnica
+  *incluir toda la explicacion de lo que hace
 
 Este proyecto incluye:
 - API REST construida con Node.js, Express y TypeORM.
