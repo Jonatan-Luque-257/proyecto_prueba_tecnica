@@ -53,7 +53,7 @@ export default function Page() {
             type="file"
             accept=".csv"
             onChange={(e) => setArchivo(e.target.files?.[0] || null)}
-            className="mb-2"
+            className="mb-2 border-white border rounded px-2 py-1 w-full"
           />
           <button
             type="submit"
@@ -66,9 +66,9 @@ export default function Page() {
 
         {resultado && (
           <section className="mt-4 bg-gray-100 p-3 rounded">
-            <p><strong>Total:</strong> {resultado.total}</p>
-            <p><strong>Insertadas:</strong> {resultado.insertadas}</p>
-            <p><strong>Ignoradas:</strong> {resultado.ignoradas}</p>
+            <p className="text-black"><strong>Total:</strong> {resultado.total}</p>
+            <p className="text-black"><strong>Insertadas:</strong> {resultado.insertadas}</p>
+            <p className="text-black"><strong>Ignoradas:</strong> {resultado.ignoradas}</p>
             {resultado?.errores && resultado.errores.length > 0 && (
               <details className="mt-2">
                 <summary className="cursor-pointer text-sm text-red-600">Ver errores</summary>
