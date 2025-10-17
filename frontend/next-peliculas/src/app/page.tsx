@@ -23,60 +23,66 @@ function SubirCsv(
   }: any
 ) {
   return (
-    <>
-      <main className="max-w-md mx-auto p-4 bg-white rounded shadow p-12">
-        <h1 className="text-2xl font-bold text-black border-b-2 border-indigo-500 pb-3"> 📄 Subir archivo CSV</h1>
+    <main className="max-w-md mx-auto p-4 bg-white rounded shadow p-12">
+      <h1 className="text-2xl font-bold text-black border-b-2 border-indigo-500 pb-3"> 📄 Subir archivo CSV</h1>
 
-        <form onSubmit={handleSubmit}>
-          <input
-            type="file"
-            accept=".csv"
-            onChange={(e) => setArchivo(e.target.files?.[0] || null)}
-            className="my-5 border-indigo-500 border rounded px-2 py-1 w-full text-gray-500"
-          />
-          <button className="bg-blue-600 text-white px-4 py-2 rounded"
-            type="submit"
-            disabled={!archivo || cargando}
-          >
-            {cargando ? 'Procesando...' : 'Subir CSV'}
-          </button>
-        </form>
+      <form onSubmit={handleSubmit}>
+        <input
+          type="file"
+          accept=".csv"
+          onChange={(e) => setArchivo(e.target.files?.[0] || null)}
+          className="my-5 border-indigo-500 border rounded px-2 py-1 w-full text-gray-500"
+        />
+        <button className="bg-blue-600 text-white px-4 py-2 rounded"
+          type="submit"
+          disabled={!archivo || cargando}
+        >
+          {cargando ? 'Procesando...' : 'Subir CSV'}
+        </button>
+      </form>
 
-        {resultado && (
-          <section className="mt-4 bg-gray-100 p-3 rounded-[25px] border-2 border-indigo-500">
-            <p className="text-black"><strong>Filas totales:</strong> {resultado.total}</p>
-            <p className="text-black"><strong>Insertadas:</strong> {resultado.insertadas}</p>
-            <p className="text-black"><strong>Ignoradas:</strong> {resultado.ignoradas}</p>
-            {resultado?.errores && resultado.errores.length > 0 && (
-              <details className="mt-2">
-                <summary className="cursor-pointer text-sm text-red-600">Ver errores</summary>
-                <ul className="text-sm mt-1">
-                  {resultado.errores.map((err: { fila: number; motivo: string }, i: number) => (
-                    <li key={i}>Fila {err.fila}: {err.motivo}</li>
-                  ))}
-                </ul>
-              </details>
-            )}
-          </section>
-        )}
-      </main>
-    </>
+      {resultado && (
+        <section className="mt-4 bg-gray-100 p-3 rounded-[25px] border-2 border-indigo-500">
+          <p className="text-black"><strong>Filas totales:</strong> {resultado.total}</p>
+          <p className="text-black"><strong>Insertadas:</strong> {resultado.insertadas}</p>
+          <p className="text-black"><strong>Ignoradas:</strong> {resultado.ignoradas}</p>
+          {resultado?.errores && resultado.errores.length > 0 && (
+            <details className="mt-2">
+              <summary className="cursor-pointer text-sm text-red-600">Ver errores</summary>
+              <ul className="text-sm mt-1">
+                {resultado.errores.map((err: { fila: number; motivo: string }, i: number) => (
+                  <li key={i}>Fila {err.fila}: {err.motivo}</li>
+                ))}
+              </ul>
+            </details>
+          )}
+        </section>
+      )}
+    </main>
   );
 }
 
-function ListarPeliculas({
+function ListarPeliculasFlexible({
   peliculas,
   cargando,
   paginacion,
   traerPeliculasEnStock,
+  traerPeliculasPorNombre,
   totalPaginas,
+  textoBuscar,
+  error404,
+  tooltip,
+  setTooltip
 }: any) {
+
   useEffect(() => {
-    // Solo trae películas si aún no hay datos
-    if (peliculas.length === 0) {
+    // Si no hay texto en el buscador, lista películas normales
+    if (!textoBuscar || String(textoBuscar).trim() === "") {
       traerPeliculasEnStock(1);
+    } else {
+      traerPeliculasPorNombre(textoBuscar, 1);
     }
-  }, []); // se ejecuta solo una vez al montar el componente
+  }, [textoBuscar]); // se ejecuta cada vez que cambia el textoBuscar
 
   if (cargando) return <p className="text-center">Cargando...</p>;
 
@@ -90,27 +96,56 @@ function ListarPeliculas({
             <th className="border border-gray-300 p-2">Nombre</th>
             <th className="border border-gray-300 p-2">Descripción</th>
             <th className="border border-gray-300 p-2">Año</th>
-            {/*<th className="border border-gray-300 p-2">Estado</th>*/}
+            {textoBuscar?.trim() !== "" && <th className="border border-gray-300 p-2">Estado</th>}
           </tr>
         </thead>
-        <tbody className="animated-gradient-body">
-          {peliculas.map((peli: any) => (
-            <tr key={peli.id} className="hover-animated-gradient transition">
-              <td className="border border-gray-300 p-2 table-cell" data-fulltext={peli.id}>{peli.id}</td>
-              <td className="border border-gray-300 p-2 table-cell" data-fulltext={peli.nombre}>{peli.nombre}</td>
-              <td className="border border-gray-300 p-2 table-cell" data-fulltext={peli.descripcion}>{peli.descripcion}</td>
-              <td className="border border-gray-300 p-2 table-cell" data-fulltext={peli.anio}>{peli.anio}</td>
+        <tbody className="animated-gradient-body overflow-visible">
+          {error404 ? (
+            <tr>
+              <td colSpan={5} className="text-center text-red-600 p-2">
+                No hay una película con ese nombre
+              </td>
             </tr>
-          ))}
+          ) : (
+            peliculas.map((peli: any) => (
+              <tr key={peli.id} className="hover-animated-gradient transition">
+                <td className="border border-gray-300 p-2 table-cell">{peli.id}</td>
+                <td className="border border-gray-300 p-2 table-cell">{peli.nombre}</td>
+                <td
+                  className="border border-gray-300 p-2 table-cell relative"
+                  onMouseEnter={(e) => {
+                    const rect = (e.target as HTMLElement).getBoundingClientRect();
+                    setTooltip({
+                      text: peli.descripcion,
+                      x: rect.left + rect.width / 2,
+                      y: rect.top - 10
+                    });
+                  }}
+                  onMouseLeave={() => setTooltip(null)}
+                >
+                  {peli.descripcion}
+                </td>
+                <td className="border border-gray-300 p-2 table-cell">{peli.anio}</td>
+                {textoBuscar?.trim() !== "" &&
+                  <td className="border border-gray-300 p-2 table-cell">
+                    {peli.estado ? "Activada" : <p className='text-red-600'>Dada de baja</p>}
+                  </td>
+                }
+              </tr>
+            ))
+          )}
         </tbody>
       </table>
 
       {/* PAGINACIÓN */}
       <div className="mt-4 flex justify-center gap-2">
         <button
-          onClick={() => traerPeliculasEnStock(paginacion.page - 1)}
+          onClick={() => textoBuscar?.trim() === ""
+            ? traerPeliculasEnStock(paginacion.page - 1)
+            : traerPeliculasPorNombre(textoBuscar, paginacion.page - 1)
+          }
           disabled={paginacion.page === 1 || cargando}
-          className="px-3 py-1 bg-gray-300 rounded disabled:opacity-50"
+          className="px-3 py-1 bg-violet-900 rounded-l-full disabled:opacity-50"
         >
           Anterior
         </button>
@@ -120,16 +155,33 @@ function ListarPeliculas({
         </span>
 
         <button
-          onClick={() => traerPeliculasEnStock(paginacion.page + 1)}
+          onClick={() => textoBuscar?.trim() === ""
+            ? traerPeliculasEnStock(paginacion.page + 1)
+            : traerPeliculasPorNombre(textoBuscar, paginacion.page + 1)
+          }
           disabled={paginacion.page === totalPaginas || cargando}
-          className="px-3 py-1 bg-gray-300 rounded disabled:opacity-50"
+          className="px-3 py-1 bg-violet-900 rounded-r-full disabled:opacity-50"
         >
           Siguiente
         </button>
+        {tooltip && (
+          <div
+            className="fixed bg-gray-900 text-white text-sm px-2 py-1 rounded shadow-lg max-w-xs z-50 pointer-events-none"
+            style={{
+              top: tooltip.y,
+              left: tooltip.x,
+              transform: 'translateX(-50%)',
+            }}
+          >
+            {tooltip.text}
+          </div>
+        )}
+
       </div>
     </>
   );
 }
+
 
 function AgregarPelicula(
   {
@@ -138,7 +190,8 @@ function AgregarPelicula(
     cargando,
     handleSubmit,
     resultado,
-    modo
+    modo,
+    evitarCaracteresInvalidos
   }: any
 ) {
   return (
@@ -181,11 +234,7 @@ function AgregarPelicula(
               placeholder="Ingrese el año de lanzamiento de la película"
               value={pelicula.anio === 0 ? '' : pelicula.anio}
               onChange={(e) => setPelicula({ ...pelicula, anio: e.target.value })}
-              onKeyDown={(e) => {
-                if (e.key === 'e' || e.key === 'E' || e.key === '+' || e.key === '-') {
-                  e.preventDefault();
-                }
-              }}
+              onKeyDown={evitarCaracteresInvalidos}
               className="border-indigo-500 border rounded px-2 py-1 w-full text-gray-500"
               min={0}
               required
@@ -202,7 +251,7 @@ function AgregarPelicula(
         {modo === 'crear' ?
           (
             resultado && (
-              <section className="mt-4 bg-gray-100 p-3 rounded-[25px] border-2 border-indigo-500 crear">
+              <section className="mt-4 bg-gray-100 p-3 rounded-[25px] border-2 border-indigo-500">
                 {resultado.insertadas > 0 ? (
                   <p className="text-black"><strong>Película añadida correctamente con el ID: {resultado.data?.idInsertado}</strong></p>
                 ) : (
@@ -224,7 +273,8 @@ function EditarPelicula(
     handleSubmit,
     resultado,
     textareaRef,
-    modo
+    modo,
+    evitarCaracteresInvalidos
   }: any
 ) {
   const [idInexistente, setIdInexistente] = useState(false);
@@ -271,11 +321,7 @@ function EditarPelicula(
                   setPelicula({ ...pelicula, id: 0, nombre: '', descripcion: '', anio: 0, estado: true });
                 }
               }}
-              onKeyDown={(e) => {
-                if (e.key === 'e' || e.key === 'E' || e.key === '+' || e.key === '-') {
-                  e.preventDefault();
-                }
-              }}
+              onKeyDown={evitarCaracteresInvalidos}
               className="border-indigo-500 border rounded px-2 py-1 w-full text-gray-500"
               min={0}
               required
@@ -330,12 +376,8 @@ function EditarPelicula(
               type="number"
               placeholder="Ingrese el año de lanzamiento de la película"
               value={pelicula.anio === 0 ? '' : pelicula.anio}
-              onChange={(e) => setPelicula({ ...pelicula, anio: e.target.value })}
-              onKeyDown={(e) => {
-                if (e.key === 'e' || e.key === 'E' || e.key === '+' || e.key === '-') {
-                  e.preventDefault();
-                }
-              }}
+              onChange={(e) => setPelicula({ ...pelicula, anio: parseInt(e.target.value) || 0 })}
+              onKeyDown={evitarCaracteresInvalidos}
               className="border-indigo-500 border rounded px-2 py-1 w-full text-gray-500"
               min={0}
             />
@@ -368,7 +410,7 @@ function EditarPelicula(
             resultado && (
               <section className="mt-4 bg-gray-100 p-3 rounded-[25px] border-2 border-indigo-500">
                 {resultado.insertadas > 0 ? (
-                  <p className="text-black"><strong>Película añadida correctamente con el ID: {resultado.data?.idInsertado}</strong></p>
+                  <p className="text-black"><strong>Película editada correctamente</strong></p>
                 ) : (
                   <p className="text-black"><strong>{resultado.message}</strong></p>
                 )}
@@ -412,6 +454,11 @@ export default function Page() {
   const [activeTab, setActiveTab] = useState(0);
   const [modo, setModo] = useState<'crear' | 'editar'>('crear');
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const [textoBuscar, setTextoBuscar] = useState('');
+  const [error404, setError404] = useState(false);
+  const evitarCaracteresInvalidos = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (['e', 'E', '+', '-'].includes(e.key)) e.preventDefault();
+  };
 
   const traerPeliculasEnStock = async (pagina: number = 1) => {
     try {
@@ -424,6 +471,31 @@ export default function Page() {
       });
     } catch (error) {
       console.error('Error al traer películas:', error);
+    } finally {
+      setCargando(false);
+    }
+  };
+  const [tooltip, setTooltip] = useState<{ text: string; x: number; y: number } | null>(null);
+
+  const traerPeliculasPorNombre = async (nombre: string, pagina: number = 1) => {
+    setCargando(true);
+    setError404(false); // resetear cada vez
+
+    try {
+      const res = await api.get(`/nombre/${encodeURIComponent(nombre)}?page=${pagina}&limit=${paginacion.limit}`);
+      setPeliculas(res.data.peliculas);
+      setPaginacion({
+        page: res.data.page,
+        limit: res.data.limit,
+        total: res.data.total,
+      });
+    } catch (error: any) {
+      if (error.response?.status === 404) {
+        setPeliculas([]); // limpiar lista
+        setError404(true); // indicar que no se encontró
+      } else {
+        console.error('Error al traer películas:', error);
+      }
     } finally {
       setCargando(false);
     }
@@ -447,12 +519,17 @@ export default function Page() {
       id: "listar",
       label: "Listar películas",
       content: () => (
-        <ListarPeliculas
+        <ListarPeliculasFlexible
           peliculas={peliculas}
           cargando={cargando}
           paginacion={paginacion}
           traerPeliculasEnStock={traerPeliculasEnStock}
+          traerPeliculasPorNombre={traerPeliculasPorNombre}
           totalPaginas={totalPaginas}
+          textoBuscar={textoBuscar}
+          error404={error404}
+          tooltip={tooltip}
+          setTooltip={setTooltip}
         />
       ),
     },
@@ -583,7 +660,10 @@ export default function Page() {
             {tabs.map((tab, index) => (
               <li key={tab.id}>
                 <button
-                  onClick={() => setActiveTab(index)}
+                  onClick={() => {
+                    setActiveTab(index);
+                    setTextoBuscar('');
+                  }}
                   className={`block w-full text-left px-4 py-2 rounded-md transition-all duration-200 ${activeTab === index
                     ? "bg-indigo-600"
                     : "hover:bg-gray-700 bg-gray-700/60"
@@ -602,6 +682,13 @@ export default function Page() {
           {/* HEADER */}
           <header className="h-16 bg-violet-600 text-white flex justify-center items-center shadow-md z-10">
             <h1 className="text-2xl font-bold">Catálogo de Películas</h1>
+            {tabs[activeTab]?.id === "listar" && (
+              <input type="search"
+                placeholder="Buscar por nombre..."
+                onChange={(e) => setTextoBuscar(e.target.value)}
+                className="absolute right-5 h-7 w-48 pl-2 pr-3 rounded-[20px] border-2 border-white bg-black text-white placeholder-white placeholder:italic shadow-md focus:outline-none focus:ring-3 focus:ring-white focus:border-transparent"
+              />
+            )}
           </header>
 
           {/* MAIN */}

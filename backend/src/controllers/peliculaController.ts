@@ -4,6 +4,7 @@ import fs from 'fs';
 import csv from 'csv-parser';
 import { AppDataSource } from '../data-source';
 import { Pelicula } from '../entity/Pelicula';
+import { Like } from 'typeorm';
 
 //-GETTERS
 export const getPeliculas = async (req: Request, res: Response) => {
@@ -50,9 +51,10 @@ export const getPeliculaByNombre = async (req: Request, res: Response) => {
   const limit = parseInt(req.query.limit as string) || 10;
   const offset = (page - 1) * limit;
 
+
   try {
     const [peliculas, total] = await AppDataSource.getRepository(Pelicula).findAndCount({
-      where: { nombre: nombreVerificado },
+      where: { nombre: Like(`%${nombreVerificado}%`) },
       skip: offset,
       take: limit,
     });

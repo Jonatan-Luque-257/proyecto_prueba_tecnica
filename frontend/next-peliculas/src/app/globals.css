@@ -72,32 +72,6 @@ body {
   cursor: help; /* muestra un cursor indicando que hay más info */
 }
 
-.table-cell:hover::after {
-  content: attr(data-fulltext);
-  position: absolute;
-  top: -40px; /* posición sobre la celda */
-  left: 50%;
-  transform: translateX(-50%);
-  background: rgba(17, 24, 39, 0.95); /* fondo oscuro semitransparente */
-  color: #fff;
-  padding: 6px 10px;
-  border-radius: 6px;
-  white-space: normal;
-  width: max-content;
-  max-width: 300px;
-  z-index: 50;
-  font-size: 0.875rem;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-  animation: fadeIn 0.2s ease-in-out;
-  pointer-events: none; /* evita que el tooltip interfiera con el mouse */
-}
-
-/* Suave animación de aparición */
-@keyframes fadeIn {
-  from { opacity: 0; transform: translate(-50%, -5px); }
-  to { opacity: 1; transform: translate(-50%, 0); }
-}
-
 /* --- Personalización del scroll global --- */
 ::-webkit-scrollbar {
   width: 5px;       /* ancho de la barra vertical */
