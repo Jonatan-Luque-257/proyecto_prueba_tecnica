@@ -24,3 +24,99 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/* Gradiente intenso para el encabezado */
+@keyframes gradientHeader {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.animated-gradient-header {
+  background: linear-gradient(270deg, #8b5cf6, #4f46e5, #6366f1, #a78bfa);
+  background-size: 800% 800%;
+  animation: gradientHeader 10s ease infinite;
+  color: white;
+}
+
+/* Gradiente suave para el cuerpo */
+@keyframes gradientBody {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.animated-gradient-body {
+  background: linear-gradient(270deg, #a78bfa66, #6366f166, #4f46e566, #8b5cf666); /* transparencia con 66 */
+  background-size: 800% 800%;
+  animation: gradientBody 30s ease infinite; /* más lento y suave */
+  color: white;
+}
+
+/* Hover para las filas, gradiente más marcado */
+.hover-animated-gradient:hover {
+  background: linear-gradient(270deg, #f59e0b, #f97316, #fb923c, #fbbf24);
+  background-size: 800% 800%;
+  animation: gradientMoveHover 5s ease infinite;
+  color: black;
+  font-weight: bold;
+}
+
+/* Tooltip general */
+.table-cell {
+  position: relative;
+  max-width: 200px; /* ajustá el ancho máximo que quieras */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: help; /* muestra un cursor indicando que hay más info */
+}
+
+.table-cell:hover::after {
+  content: attr(data-fulltext);
+  position: absolute;
+  top: -40px; /* posición sobre la celda */
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(17, 24, 39, 0.95); /* fondo oscuro semitransparente */
+  color: #fff;
+  padding: 6px 10px;
+  border-radius: 6px;
+  white-space: normal;
+  width: max-content;
+  max-width: 300px;
+  z-index: 50;
+  font-size: 0.875rem;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+  animation: fadeIn 0.2s ease-in-out;
+  pointer-events: none; /* evita que el tooltip interfiera con el mouse */
+}
+
+/* Suave animación de aparición */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translate(-50%, -5px); }
+  to { opacity: 1; transform: translate(-50%, 0); }
+}
+
+/* --- Personalización del scroll global --- */
+::-webkit-scrollbar {
+  width: 5px;       /* ancho de la barra vertical */
+}
+
+::-webkit-scrollbar-track {
+  background: #0a0a0a;   /* color del fondo */
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #00bfff, #0077b6);  /* color degradado */
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, #0099cc, #005f87);
+}
+
+textarea {
+  resize: none; /* Evita que se arrastre para redimensionar */
+  overflow: hidden; /* Oculta scroll */
+}

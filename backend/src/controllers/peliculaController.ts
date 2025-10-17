@@ -2,6 +2,8 @@ import { Request, Response } from 'express';
 import { peliculaModel } from '../models/peliculaModel';
 import fs from 'fs';
 import csv from 'csv-parser';
+import { AppDataSource } from '../data-source';
+import { Pelicula } from '../entity/Pelicula';
 
 //-GETTERS
 export const getPeliculas = async (req: Request, res: Response) => {
@@ -10,9 +12,11 @@ export const getPeliculas = async (req: Request, res: Response) => {
   const offset = (page - 1) * limit;
 
   try {
-    const peliculas = await peliculaModel.getPeliculas(limit, offset);
-    console.log(req.file);
-    res.status(200).json({ page, limit, total: peliculas.length, peliculas });
+    const [peliculas, total] = await AppDataSource.getRepository(Pelicula).findAndCount({
+      skip: offset,
+      take: limit,
+    });
+    res.status(200).json({ page, limit, total, peliculas });
   } catch {
     res.status(500).json({ msg: 'Error al consultar las películas' });
   }
@@ -20,20 +24,24 @@ export const getPeliculas = async (req: Request, res: Response) => {
 
 export const getPeliculaById = async (req: Request, res: Response) => {
   const { id } = req.params;
-  const page = parseInt(req.query.page as string) || 1;
-  const limit = parseInt(req.query.limit as string) || 10;
-  const offset = (page - 1) * limit;
 
   try {
-    const peliculas = await peliculaModel.getPeliculaById(Number(id), limit, offset);
-    if (!peliculas.length) {
+    const pelicula = await AppDataSource.getRepository(Pelicula).findOneBy({
+      id: Number(id),
+    });
+
+    if (!pelicula) {
       return res.status(404).json({ message: 'Película por ID no encontrada' });
     }
-    res.status(200).json({ page, limit, total: peliculas.length, peliculas });
-  } catch {
-    res.status(500).json({ msg: 'Error al consultar la película por ID' });
+
+    // Devuelve un solo objeto
+    res.status(200).json(pelicula);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Error al consultar la película por ID' });
   }
 };
+
 
 export const getPeliculaByNombre = async (req: Request, res: Response) => {
   const { nombre } = req.params;
@@ -43,11 +51,15 @@ export const getPeliculaByNombre = async (req: Request, res: Response) => {
   const offset = (page - 1) * limit;
 
   try {
-    const peliculas = await peliculaModel.getPeliculaByNombre(nombreVerificado, limit, offset);
+    const [peliculas, total] = await AppDataSource.getRepository(Pelicula).findAndCount({
+      where: { nombre: nombreVerificado },
+      skip: offset,
+      take: limit,
+    });
     if (!peliculas.length) {
       return res.status(404).json({ message: 'No se encontró una película con ese nombre' });
     }
-    res.status(200).json({ page, limit, total: peliculas.length, peliculas });
+    res.status(200).json({ page, limit, total, peliculas });
   } catch {
     res.status(500).json({ msg: 'Error al consultar la película por nombre' });
   }
@@ -60,11 +72,15 @@ export const getPeliculasByEstado = async (req: Request, res: Response) => {
   const offset = (page - 1) * limit;
 
   try {
-    const peliculas = await peliculaModel.getPeliculasByEstado(estado === '1', limit, offset);
+    const [peliculas, total] = await AppDataSource.getRepository(Pelicula).findAndCount({
+      where: { estado: estado === '1' }, // true o false según params
+      skip: offset,
+      take: limit,
+    });
     if (!peliculas.length) {
       return res.status(404).json({ message: 'No se encontraron películas con ese estado' });
     }
-    res.status(200).json({ page, limit, total: peliculas.length, peliculas });
+    res.status(200).json({ page, limit, total, peliculas });
   } catch {
     res.status(500).json({ msg: 'Error al consultar por estado' });
   }
@@ -77,13 +93,13 @@ export const createPelicula = async (req: Request, res: Response) => {
   try {
     const existe = await peliculaModel.comprobarNombre(nombre);
     if (existe) {
-      return res.status(400).json({ msg: 'El nombre de la película ya existe' });
+      return res.status(400).json({ message: 'El nombre de la película ya existe', insertadas: 0 });
     }
 
     const nueva = await peliculaModel.createPelicula(nombre, descripcion, anio);
-    res.status(201).json({ message: 'Película insertada correctamente', data: { idInsertado: nueva.id } });
+    res.status(201).json({ message: 'Película insertada correctamente', data: { idInsertado: nueva.id }, insertadas: 1 });
   } catch {
-    res.status(500).json({ msg: 'Error al insertar la película' });
+    res.status(500).json({ message: 'Error al insertar la película', insertadas: 0 });
   }
 };
 
@@ -139,24 +155,22 @@ export const createPeliculaFromCSV = async (req: Request, res: Response) => {
 //-PUTTERS / UPDATE
 export const updatePelicula = async (req: Request, res: Response) => {
   const { id } = req.params;
-  const { nombre, descripcion, anio } = req.body || {};
+  const { nombre, descripcion, anio, estado } = req.body || {};
 
-  if (!nombre || !descripcion || !anio) {
-    return res.status(400).json({ msg: 'Faltan campos obligatorios o el año no es numérico' });
+  if (!nombre || !descripcion || typeof anio !== 'number' || estado === undefined) {
+    return res.status(400).json({ message: 'Faltan campos obligatorios o el año no es numérico' });
   }
 
   try {
-    const actualizada = await peliculaModel.updatePelicula(Number(id), nombre, descripcion, anio);
+    const actualizada = await peliculaModel.updatePelicula(Number(id), nombre, descripcion, anio, estado);
     if (!actualizada) {
       return res.status(404).json({ message: 'Película no encontrada para modificar' });
     }
     res.status(200).json({ message: 'Película modificada correctamente' });
   } catch {
-    res.status(500).json({ msg: 'Error al modificar la película' });
+    res.status(500).json({ message: 'Error al modificar la película' });
   }
 };
-
-//PATCH
 
 //-DELETE
 export const deletePeliculaLogica = async (req: Request, res: Response) => {

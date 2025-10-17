@@ -47,12 +47,13 @@ export const peliculaModel = {
     },
 
     //-PUTTERS / UPDATE
-    async updatePelicula(id: number, nombre: string, descripcion: string, anio: number) {
+    async updatePelicula(id: number, nombre: string, descripcion: string, anio: number, estado: boolean) {
         const pelicula = await repositorioPelicula.findOneBy({ id });
         if (!pelicula) return null;
         pelicula.nombre = nombre;
         pelicula.descripcion = descripcion;
         pelicula.anio = anio;
+        pelicula.estado = estado;
         return await repositorioPelicula.save(pelicula);
     },
 
