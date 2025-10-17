@@ -12,9 +12,10 @@ interface TabsProps {
   tabs: Tab[];
   activeTab: number;
   setActiveTab: (index: number) => void;
+  setTextoBuscar: (texto: string) => void;
 }
 
-export default function Tabs({ tabs, activeTab, setActiveTab }: TabsProps) {
+export default function Tabs({ tabs, activeTab, setActiveTab, setTextoBuscar }: TabsProps) {
   return (
     <div className="flex min-h-screen">
 
@@ -24,10 +25,12 @@ export default function Tabs({ tabs, activeTab, setActiveTab }: TabsProps) {
           {tabs.map((tab, index) => (
             <li key={tab.id}>
               <button
-                onClick={() => setActiveTab(index)}
-                className={`block w-full text-left px-4 py-2 rounded-md transition-all duration-200 ${
-                  activeTab === index ? 'bg-indigo-600' : 'hover:bg-gray-700 bg-gray-700/60'
-                }`}
+                onClick={() => {
+                  setActiveTab(index);
+                  setTextoBuscar('');
+                }}
+                className={`block w-full text-left px-4 py-2 rounded-md transition-all duration-200 ${activeTab === index ? 'bg-indigo-600' : 'hover:bg-gray-700 bg-gray-700/60'
+                  }`}
               >
                 {tab.label}
               </button>
@@ -43,9 +46,8 @@ export default function Tabs({ tabs, activeTab, setActiveTab }: TabsProps) {
             {tabs.map((tab, index) => (
               <article
                 key={tab.id}
-                className={`transition-opacity duration-500 ${
-                  activeTab === index ? 'opacity-100' : 'hidden opacity-0'
-                }`}
+                className={`transition-opacity duration-500 ${activeTab === index ? 'opacity-100' : 'hidden opacity-0'
+                  }`}
               >
                 {activeTab === index && tab.content()}
               </article>

@@ -11,7 +11,7 @@ interface SubirCsvProps {
 
 export default function SubirCsv({ cargando, handleSubmit, archivo, setArchivo, resultado }: SubirCsvProps) {
   return (
-    <main className="max-w-md mx-auto p-4 bg-white rounded shadow p-12">
+    <div className="max-w-md mx-auto p-4 bg-white rounded shadow p-12">
       <h1 className="text-2xl font-bold text-black border-b-2 border-indigo-500 pb-3">📄 Subir archivo CSV</h1>
 
       <form onSubmit={handleSubmit}>
@@ -47,6 +47,6 @@ export default function SubirCsv({ cargando, handleSubmit, archivo, setArchivo, 
           )}
         </section>
       )}
-    </main>
+    </div>
   );
 }

@@ -21,7 +21,7 @@ export default function AgregarPelicula({
 }: AgregarPeliculaProps) {
 
   return (
-    <main className="max-w-md mx-auto p-4 bg-white rounded shadow p-12">
+    <div className="max-w-md mx-auto p-4 bg-white rounded shadow p-12">
       <h1 className="text-2xl font-bold text-black border-b-2 border-indigo-500 mb-4 pb-3"> 📄 Agregar película</h1>
 
       <form onSubmit={(e) => { e.preventDefault(); handleSubmit('crear'); }}>
@@ -78,6 +78,6 @@ export default function AgregarPelicula({
           )}
         </section>
       )}
-    </main>
+    </div>
   );
 }

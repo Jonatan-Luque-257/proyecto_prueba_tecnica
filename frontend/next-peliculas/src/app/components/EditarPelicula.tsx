@@ -9,7 +9,7 @@ interface EditarPeliculaProps {
   cargando: boolean;
   handleSubmit: (accion: 'editar') => void;
   resultado: any;
-  textareaRef: React.RefObject<HTMLTextAreaElement>;
+  textareaRef: React.RefObject<HTMLTextAreaElement | null>;
   modo: 'crear' | 'editar';
   evitarCaracteresInvalidos: (e: React.KeyboardEvent<HTMLInputElement>) => void;
 }
@@ -55,7 +55,7 @@ export default function EditarPelicula({
   };
 
   return (
-    <main className="max-w-md mx-auto p-4 bg-white rounded shadow p-12">
+    <div className="max-w-md mx-auto p-4 bg-white rounded shadow p-12">
       <h1 className="text-2xl font-bold text-black border-b-2 border-indigo-500 mb-4 pb-3"> 📄 Editar película</h1>
 
       <form onSubmit={(e) => { e.preventDefault(); handleSubmit('editar'); }}>
@@ -139,6 +139,6 @@ export default function EditarPelicula({
           )}
         </section>
       )}
-    </main>
+    </div>
   );
 }
