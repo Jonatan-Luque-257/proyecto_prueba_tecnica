@@ -25,7 +25,9 @@ Este proyecto es una prueba técnica fullstack que incluye un **backend** con No
 3. Desde la carpeta raiz del proyecto "./proyecto_prueba_tecnica-main/" debe ejecutar el siguiente comando en una consola para **instalar las dependencias** del proyecto:
     npm install
 
-4. Ejecutar el próximo comando para **levantar el sistema completo**, tanto frontend como backend.
+4. Crear una base de datos (MySQL en este caso) e importar el archivo "peliculas_db.sql" para utilizar la estructura de tabla correspondiente para este backend.
+
+5. Ejecutar el próximo comando para **levantar el sistema completo**, tanto frontend como backend.
     npx turbo run dev
 
 **_(Esto levanta frontend en http://localhost:3000 y backend en http://localhost:3001.)_**
